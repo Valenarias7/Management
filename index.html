@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Task Tracking Sample - Valentina Arias Reyes</title>
+  <style>
+    :root {
+      --bg: #f4f8f5;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #d9e5dc;
+      --primary: #1f6f5f;
+      --primary-dark: #155346;
+      --accent: #2f855a;
+      --light-green: #eaf5ee;
+      --high: #c0392b;
+      --medium: #d68910;
+      --low: #2e86c1;
+      --completed: #2e8b57;
+      --progress: #f4b942;
+      --scheduled: #7d5ba6;
+      --notstarted: #7b8794;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Arial, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .topbar {
+      background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+      color: white;
+      padding: 28px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .container {
+      width: 92%;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .topbar p {
+      margin: 8px 0 0;
+      opacity: 0.95;
+      font-size: 15px;
+    }
+
+    .note {
+      margin-top: 22px;
+      background: var(--light-green);
+      border-left: 5px solid var(--accent);
+      padding: 14px 16px;
+      border-radius: 10px;
+      color: #234033;
+      font-size: 14px;
+    }
+
+    .section-title {
+      margin: 28px 0 14px;
+      font-size: 18px;
+      color: var(--primary-dark);
+      font-weight: 700;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 2px 8px rgba(31,111,95,0.06);
+    }
+
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 13px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .card .value {
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: white;
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(31,111,95,0.04);
+    }
+
+    .toolbar input, .toolbar select {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      font-size: 14px;
+      min-width: 180px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: 0 2px 8px rgba(31,111,95,0.05);
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1120px;
+    }
+
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #edf2ee;
+      text-align: left;
+      font-size: 14px;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f7fbf8;
+      color: #28463d;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    tr:hover {
+      background: #fbfdfb;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .high { background: var(--high); }
+    .medium { background: var(--medium); color: #1f2937; }
+    .low { background: var(--low); }
+    .completed { background: var(--completed); }
+    .inprogress { background: var(--progress); color: #1f2937; }
+    .scheduled { background: var(--scheduled); }
+    .notstarted { background: var(--notstarted); }
+
+    .footer {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 32px;
+    }
+
+    .mini {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="container">
+      <h1>Program Coordination Dashboard</h1>
+      <p>Task tracking, prioritization, deadlines, and follow-up sample</p>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="note">
+      <strong>Sample submission:</strong> This non-confidential dashboard was created to demonstrate my approach to project management, task tracking, and coordination in a remote work environment.
+    </div>
+
+    <div class="section-title">Overview</div>
+    <div class="cards">
+      <div class="card">
+        <h3>Total Tasks</h3>
+        <div class="value" id="totalTasks">0</div>
+      </div>
+      <div class="card">
+        <h3>High Priority</h3>
+        <div class="value" id="highPriority">0</div>
+      </div>
+      <div class="card">
+        <h3>In Progress</h3>
+        <div class="value" id="inProgress">0</div>
+      </div>
+      <div class="card">
+        <h3>Completed</h3>
+        <div class="value" id="completed">0</div>
+      </div>
+      <div class="card">
+        <h3>Due This Week</h3>
+        <div class="value" id="upcoming">0</div>
+      </div>
+    </div>
+
+    <div class="section-title">Task Filters</div>
+    <div class="toolbar">
+      <input type="text" id="searchInput" placeholder="Search by task, owner, workstream..." />
+      <select id="priorityFilter">
+        <option value="">All Priorities</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Completed">Completed</option>
+        <option value="Not Started">Not Started</option>
+        <option value="Scheduled">Scheduled</option>
+      </select>
+    </div>
+
+    <div class="section-title">Active Tracker</div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Task ID</th>
+            <th>Workstream</th>
+            <th>Task / Deliverable</th>
+            <th>Priority</th>
+            <th>Owner</th>
+            <th>Support Needed From</th>
+            <th>Status</th>
+            <th>Deadline</th>
+            <th>Next Step</th>
+            <th>Last Update</th>
+            <th>Notes / Risks</th>
+          </tr>
+        </thead>
+        <tbody id="taskTableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      Prepared by <strong>Valentina Arias Reyes</strong> | Sample for application purposes only
+      <div class="mini">Designed to demonstrate organization, deadline tracking, prioritization, and remote coordination.</div>
+    </div>
+  </div>
+
+  <script>
+    const tasks = [
+      {
+        id: "FE-001",
+        workstream: "Executive Support",
+        deliverable: "Prepare weekly priorities summary for Program Director",
+        priority: "High",
+        owner: "V. Arias",
+        support: "Program Director",
+        status: "In Progress",
+        deadline: "2026-03-05",
+        nextStep: "Consolidate updates from team members",
+        lastUpdate: "2026-03-03",
+        notes: "Waiting on 2 team inputs"
+      },
+      {
+        id: "FE-002",
+        workstream: "Scheduling",
+        deliverable: "Coordinate stakeholder meeting across CET/ET time zones",
+        priority: "High",
+        owner: "V. Arias",
+        support: "External partners",
+        status: "Scheduled",
+        deadline: "2026-03-06",
+        nextStep: "Send calendar invite and briefing note",
+        lastUpdate: "2026-03-03",
+        notes: "Time overlap confirmed"
+      },
+      {
+        id: "FE-003",
+        workstream: "Budget Tracking",
+        deliverable: "Update monthly expense and receipt log",
+        priority: "Medium",
+        owner: "V. Arias",
+        support: "Finance",
+        status: "In Progress",
+        deadline: "2026-03-10",
+        nextStep: "Match receipts to budget categories",
+        lastUpdate: "2026-03-03",
+        notes: "3 receipts pending"
+      },
+      {
+        id: "FE-004",
+        workstream: "Onboarding",
+        deliverable: "Prepare onboarding checklist for new team member",
+        priority: "Medium",
+        owner: "V. Arias",
+        support: "HR / IT",
+        status: "Not Started",
+        deadline: "2026-03-12",
+        nextStep: "Confirm account access and welcome schedule",
+        lastUpdate: "2026-03-03",
+        notes: "Awaiting start date confirmation"
+      },
+      {
+        id: "FE-005",
+        workstream: "Event Logistics",
+        deliverable: "Arrange virtual planning meeting and circulate materials",
+        priority: "High",
+        owner: "V. Arias",
+        support: "Program team",
+        status: "In Progress",
+        deadline: "2026-03-07",
+        nextStep: "Finalize agenda and attach prep materials",
+        lastUpdate: "2026-03-03",
+        notes: "One speaker pending confirmation"
+      },
+      {
+        id: "FE-006",
+        workstream: "Grant Deliverables",
+        deliverable: "Track reporting deadlines across workstreams",
+        priority: "High",
+        owner: "V. Arias",
+        support: "Program leads",
+        status: "In Progress",
+        deadline: "2026-03-15",
+        nextStep: "Update tracker and send reminders",
+        lastUpdate: "2026-03-03",
+        notes: "Important for monthly review"
+      },
+      {
+        id: "FE-007",
+        workstream: "Travel Coordination",
+        deliverable: "Draft travel checklist for conference delegation",
+        priority: "Medium",
+        owner: "V. Arias",
+        support: "Travelers / Admin",
+        status: "Not Started",
+        deadline: "2026-03-20",
+        nextStep: "Confirm traveler details and visa needs",
+        lastUpdate: "2026-03-03",
+        notes: "Pending attendee confirmation"
+      },
+      {
+        id: "FE-008",
+        workstream: "Documentation",
+        deliverable: "Organize shared folder and version control for meeting files",
+        priority: "Low",
+        owner: "V. Arias",
+        support: "Team members",
+        status: "Completed",
+        deadline: "2026-03-02",
+        nextStep: "Folder structure finalized",
+        lastUpdate: "2026-03-02",
+        notes: "Completed successfully"
+      }
+    ];
+
+    const tbody = document.getElementById("taskTableBody");
+    const searchInput = document.getElementById("searchInput");
+    const priorityFilter = document.getElementById("priorityFilter");
+    const statusFilter = document.getElementById("statusFilter");
+
+    function priorityClass(priority) {
+      if (priority === "High") return "high";
+      if (priority === "Medium") return "medium";
+      return "low";
+    }
+
+    function statusClass(status) {
+      if (status === "Completed") return "completed";
+      if (status === "In Progress") return "inprogress";
+      if (status === "Scheduled") return "scheduled";
+      return "notstarted";
+    }
+
+    function renderTable() {
+      const search = searchInput.value.toLowerCase();
+      const priority = priorityFilter.value;
+      const status = statusFilter.value;
+
+      const filtered = tasks.filter(task => {
+        const matchesSearch = Object.values(task).some(value =>
+          String(value).toLowerCase().includes(search)
+        );
+        const matchesPriority = !priority || task.priority === priority;
+        const matchesStatus = !status || task.status === status;
+        return matchesSearch && matchesPriority && matchesStatus;
+      });
+
+      tbody.innerHTML = filtered.map(task => `
+        <tr>
+          <td>${task.id}</td>
+          <td>${task.workstream}</td>
+          <td>${task.deliverable}</td>
+          <td><span class="badge ${priorityClass(task.priority)}">${task.priority}</span></td>
+          <td>${task.owner}</td>
+          <td>${task.support}</td>
+          <td><span class="badge ${statusClass(task.status)}">${task.status}</span></td>
+          <td>${task.deadline}</td>
+          <td>${task.nextStep}</td>
+          <td>${task.lastUpdate}</td>
+          <td>${task.notes}</td>
+        </tr>
+      `).join("");
+
+      updateCards(filtered);
+    }
+
+    function updateCards(filtered) {
+      document.getElementById("totalTasks").textContent = filtered.length;
+      document.getElementById("highPriority").textContent = filtered.filter(t => t.priority === "High").length;
+      document.getElementById("inProgress").textContent = filtered.filter(t => t.status === "In Progress").length;
+      document.getElementById("completed").textContent = filtered.filter(t => t.status === "Completed").length;
+
+      const today = new Date("2026-03-03");
+      const nextWeek = new Date(today);
+      nextWeek.setDate(today.getDate() + 7);
+
+      const upcoming = filtered.filter(t => {
+        const deadline = new Date(t.deadline);
+        return deadline >= today && deadline <= nextWeek;
+      }).length;
+
+      document.getElementById("upcoming").textContent = upcoming;
+    }
+
+    searchInput.addEventListener("input", renderTable);
+    priorityFilter.addEventListener("change", renderTable);
+    statusFilter.addEventListener("change", renderTable);
+
+    renderTable();
+  </script>
+</body>
+</html>
